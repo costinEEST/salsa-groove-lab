@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salsa Dashboard — An 8-Beat Instrument Sequencer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* =========================================================
+       SALSA DASHBOARD — Stylesheet
+       Aesthetic: vintage hardware sequencer × Afro-Cuban warmth
+       ========================================================= */
+
+    :root {
+      /* Base palette — warm dark, amber LED glow */
+      --bg-deep: #0f0a07;
+      --bg-1: #170f0a;
+      --bg-2: #20140d;
+      --bg-3: #2c1a10;
+      --line: rgba(255, 220, 170, 0.08);
+      --line-strong: rgba(255, 220, 170, 0.18);
+
+      --text: #f3e3cd;
+      --text-dim: #a18a73;
+      --text-muted: #6e5b48;
+
+      --amber: #ffc857;
+      --amber-bright: #ffd97a;
+      --red: #e63946;
+      --red-deep: #a4243b;
+
+      /* Per-instrument hues */
+      --c-clave: #ffe45e;
+      --c-cascara: #5dd9c1;
+      --c-cowbell: #fb8b24;
+      --c-bongo: #ff6b9d;
+      --c-conga: #e63946;
+      --c-bass: #c084fc;
+      --c-piano: #f9a03f;
+      --c-horns: #d4ff4d;
+      --c-coro: #d4a5e8;
+
+      /* Layout */
+      --radius: 4px;
+      --radius-lg: 8px;
+      --gutter: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-deep);
+      color: var(--text);
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 173, 92, 0.08), transparent 70%),
+        radial-gradient(ellipse 60% 60% at 100% 100%, rgba(230, 57, 70, 0.05), transparent 70%);
+      z-index: 0;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>");
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 36px 28px 80px;
+    }
+
+    /* ───── HEADER ───── */
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 24px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line-strong);
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .brand h1 {
+      font-family: "Big Shoulders Display", "Impact", sans-serif;
+      font-weight: 900;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 0.88;
+      letter-spacing: -0.02em;
+      margin: 4px 0 0 0;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .brand h1 .accent {
+      color: var(--amber);
+      font-style: italic;
+      font-family: "Instrument Serif", serif;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      text-transform: lowercase;
+    }
+
+    .brand .sub {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 18px;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+
+    .brand .sub::before {
+      content: "¡ ";
+      color: var(--red);
+    }
+    .brand .sub::after {
+      content: " !";
+      color: var(--red);
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .transport .knob {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: var(--bg-1);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      min-width: 96px;
+    }
+
+    .transport .knob label {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .transport .knob .val {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: var(--amber);
+      line-height: 1;
+      text-shadow: 0 0 16px rgba(255, 200, 87, 0.5);
+    }
+
+    .play-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(160deg, var(--red) 0%, var(--red-deep) 100%);
+      color: var(--text);
+      border: none;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 24px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 8px 24px rgba(230, 57, 70, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      transition: transform 0.08s ease, box-shadow 0.2s ease;
+    }
+    .play-btn:hover {
+      transform: translateY(-1px);
+    }
+    .play-btn.playing {
+      background: linear-gradient(160deg, var(--amber) 0%, #c98c20 100%);
+      color: var(--bg-deep);
+    }
+
+    /* ───── BEAT STRIP ───── */
+    .beat-strip {
+      background: var(--bg-1);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .beat-strip-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .beat-strip-label .l {
+      font-size: 10px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .beat-strip-label .r {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    .beats {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+    }
+    .beat {
+      position: relative;
+      aspect-ratio: 1.4 / 1;
+      border-radius: var(--radius);
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 6px;
+      transition: all 0.1s ease;
+      overflow: hidden;
+    }
+    .beat .num {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 900;
+      font-size: 38px;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+    .beat .desc {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.1;
+    }
+    .beat .side {
+      position: absolute;
+      top: 6px;
+      right: 7px;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      background: var(--bg-3);
+      padding: 2px 5px;
+      border-radius: 2px;
+      border: 1px solid var(--line);
+    }
+    .beat.side-2 .side { color: var(--amber); border-color: rgba(255, 200, 87, 0.3); }
+    .beat.side-3 .side { color: var(--red); border-color: rgba(230, 57, 70, 0.3); }
+    .beat.active .num {
+      color: var(--amber-bright);
+      text-shadow: 0 0 12px rgba(255, 200, 87, 0.7);
+    }
+    .beat.active {
+      background: radial-gradient(circle at 50% 50%, rgba(255, 200, 87, 0.3), transparent 70%),
+        var(--bg-3);
+      border-color: var(--amber);
+      box-shadow:
+        0 0 0 1px var(--amber),
+        0 0 24px rgba(255, 200, 87, 0.4);
+    }
+    .beat.active.break .num {
+      color: var(--red);
+      text-shadow: 0 0 12px rgba(230, 57, 70, 0.7);
+    }
+    .beat.active.break {
+      background: radial-gradient(circle at 50% 50%, rgba(230, 57, 70, 0.3), transparent 70%),
+        var(--bg-3);
+      border-color: var(--red);
+      box-shadow:
+        0 0 0 1px var(--red),
+        0 0 24px rgba(230, 57, 70, 0.4);
+    }
+
+    /* ───── TOOLBAR ───── */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      background: var(--bg-2);
+      border: 1px solid var(--line-strong);
+      color: var(--text-dim);
+      padding: 8px 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .toolbar button:hover {
+      color: var(--text);
+      border-color: var(--amber);
+    }
+    .toolbar .sep {
+      width: 1px;
+      height: 22px;
+      background: var(--line-strong);
+    }
+    .toolbar .hint {
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+    }
+
+    /* ───── TRACKS ───── */
+    .tracks {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .track {
+      display: grid;
+      grid-template-columns: 268px 1fr;
+      gap: var(--gutter);
+      align-items: center;
+      background: var(--bg-1);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--track-color, var(--amber));
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      transition: background 0.15s ease;
+    }
+    .track:hover {
+      background: var(--bg-2);
+    }
+    .track.muted {
+      opacity: 0.4;
+    }
+
+    .track-meta {
+      display: grid;
+      gap: 10px;
+    }
+
+    .track-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .track-glyph {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      border: 1px solid var(--track-color, var(--amber));
+      display: grid;
+      place-items: center;
+      color: var(--track-color, var(--amber));
+      flex-shrink: 0;
+      box-shadow: 0 0 12px transparent;
+      transition: box-shadow 0.2s ease;
+    }
+    .track-glyph.pulse {
+      box-shadow: 0 0 18px var(--track-color, var(--amber));
+    }
+    .track-glyph svg {
+      width: 20px;
+      height: 20px;
+    }
+    .track-name {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 0;
+    }
+    .track-name .n {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 700;
+      font-size: 19px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .track-name .t {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    .track-name .badge {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      background: var(--track-color, var(--amber));
+      color: var(--bg-deep);
+      padding: 2px 5px;
+      border-radius: 2px;
+      display: none;
+    }
+    .track.has-stem .track-name .badge {
+      display: inline-block;
+    }
+
+    .track-controls {
+      display: grid;
+      grid-template-columns: 28px 28px 28px 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+    .ms-btn {
+      height: 26px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-strong);
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.1s ease;
+      padding: 0;
+    }
+    .ms-btn:hover { color: var(--text); }
+    .ms-btn.mute.on {
+      background: var(--red);
+      border-color: var(--red);
+      color: var(--text);
+    }
+    .ms-btn.solo.on {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: var(--bg-deep);
+    }
+    .stem-btn {
+      height: 26px;
+      width: 28px;
+      background: var(--bg-2);
+      border: 1px solid var(--line-strong);
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 3px;
+      display: grid;
+      place-items: center;
+      transition: all 0.1s ease;
+      position: relative;
+    }
+    .stem-btn:hover { color: var(--text); }
+    .stem-btn svg { width: 12px; height: 12px; }
+    .stem-btn input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .track.has-stem .stem-btn {
+      background: var(--track-color);
+      border-color: var(--track-color);
+      color: var(--bg-deep);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      width: 100%;
+      height: 22px;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 3px;
+      background: var(--bg-3);
+      border-radius: 2px;
+    }
+    input[type="range"]::-moz-range-track {
+      height: 3px;
+      background: var(--bg-3);
+      border-radius: 2px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: var(--amber);
+      border-radius: 50%;
+      margin-top: -4.5px;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(255, 200, 87, 0.4);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: var(--amber);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .transport input[type="range"] {
+      width: 110px;
+    }
+
+    .stem-status {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .stem-status .clear {
+      cursor: pointer;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1;
+    }
+    .stem-status .clear:hover { color: var(--red); }
+    .track.has-stem .stem-status { color: var(--track-color); }
+
+    /* Pattern grid */
+    .pattern {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 4px;
+    }
+    .cell {
+      aspect-ratio: 1 / 1;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      position: relative;
+    }
+    .cell:hover {
+      border-color: var(--track-color, var(--amber));
+    }
+    .cell.beat-start::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+    .cell.measure-start {
+      border-top-color: var(--line-strong);
+      border-left-color: var(--line-strong);
+    }
+    .cell.on {
+      background: var(--track-color, var(--amber));
+      border-color: var(--track-color, var(--amber));
+      box-shadow: 0 0 6px var(--track-color, var(--amber));
+    }
+    .cell.playing {
+      outline: 1.5px solid var(--amber-bright);
+      outline-offset: 1px;
+    }
+    .cell.on.fire {
+      animation: cellFire 0.25s ease-out;
+    }
+    @keyframes cellFire {
+      0% {
+        transform: scale(1.18);
+        box-shadow: 0 0 18px var(--track-color, var(--amber));
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px var(--track-color, var(--amber));
+      }
+    }
+    .track.has-stem .cell {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .track.has-stem .cell:hover { border-color: var(--line); }
+
+    /* ───── LEGEND ───── */
+    .legend {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 20px 22px;
+      background: var(--bg-1);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+    }
+    .legend h3 {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0 0 10px 0;
+      color: var(--amber);
+    }
+    .legend p,
+    .legend li {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .legend ul {
+      padding-left: 18px;
+      margin: 0;
+    }
+    .legend code {
+      color: var(--amber-bright);
+      background: var(--bg-3);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    @media (max-width: 1000px) {
+      header { grid-template-columns: 1fr; }
+      .track { grid-template-columns: 1fr; }
+      .legend { grid-template-columns: 1fr; }
+      .transport { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ════════════ HEADER ════════════ -->
+    <header>
+      <div class="brand">
+        <span class="eyebrow">An 8-beat instrument sequencer + stem mixer</span>
+        <h1>Salsa<br /><span class="accent">en la máquina</span></h1>
+        <div class="sub">vamos a tocar — clave, conga, campana, coro</div>
+      </div>
+
+      <div class="transport">
+        <div class="knob">
+          <label>Tempo</label>
+          <div class="val" id="bpmDisplay">96</div>
+          <input type="range" id="bpm" min="60" max="180" value="96" step="1" />
+        </div>
+        <div class="knob">
+          <label>Swing</label>
+          <div class="val" id="swingDisplay">8</div>
+          <input type="range" id="swing" min="0" max="18" value="8" step="1" />
+        </div>
+        <div class="knob">
+          <label>Master</label>
+          <div class="val" id="masterDisplay">70</div>
+          <input type="range" id="master" min="0" max="100" value="70" step="1" />
+        </div>
+        <button class="play-btn" id="playBtn" aria-label="Play / Stop">▶</button>
+      </div>
+    </header>
+
+    <!-- ════════════ BEAT STRIP ════════════ -->
+    <section class="beat-strip">
+      <div class="beat-strip-label">
+        <span class="l">The 8-Beat Structure</span>
+        <span class="r"
+          >Step on 1, 2, 3 — pause on 4 — step on 5, 6, 7 — pause on 8</span
+        >
+      </div>
+      <div class="beats" id="beatStrip"></div>
+    </section>
+
+    <!-- ════════════ TOOLBAR ════════════ -->
+    <div class="toolbar">
+      <button id="claveToggle">Clave: 2-3 Son</button>
+      <button id="resetPatterns">Reset Patterns</button>
+      <button id="clearAll">Clear All</button>
+      <button id="clearStems">Clear All Stems</button>
+      <span class="sep"></span>
+      <span class="hint">Click any cell to edit · Upload stems to isolate real tracks</span>
+    </div>
+
+    <!-- ════════════ TRACKS ════════════ -->
+    <section class="tracks" id="tracks"></section>
+
+    <!-- ════════════ LEGEND ════════════ -->
+    <aside class="legend">
+      <div>
+        <h3>How it works</h3>
+        <p>
+          Each instrument is synthesised live with the
+          <code>Web Audio API</code> — no audio files required, so every track
+          is genuinely isolated. You can also <strong>upload your own stems</strong>
+          (drag a file onto any track's upload button) to study real recordings.
+          The 16-step grid spans two bars of 4/4 — the full <em>clave</em> cycle.
+          Dots mark downbeats; the heavier border separates the two measures.
+        </p>
+      </div>
+      <div>
+        <h3>The patterns</h3>
+        <ul>
+          <li><strong style="color: var(--c-clave)">Clave</strong> — backbone: 2, 3, 5, &amp;-of-6, 8 (2-3 Son); switchable to 3-2 Son or 2-3 Rumba</li>
+          <li><strong style="color: var(--c-cascara)">Cáscara</strong> — busy 8th-note pattern on the timbale shell</li>
+          <li><strong style="color: var(--c-cowbell)">Campana</strong> — straight downbeats, the dance anchor</li>
+          <li><strong style="color: var(--c-bongo)">Bongo</strong> — continuous <em>martillo</em> through the verse</li>
+          <li><strong style="color: var(--c-conga)">Conga tumbao</strong> — open tones on beats 4 and 8</li>
+          <li><strong style="color: var(--c-bass)">Bass tumbao</strong> — <em>anticipated</em> on &amp;-of-2 and beat 4 (root of next chord)</li>
+          <li><strong style="color: var(--c-piano)">Piano montuno</strong> — syncopated <em>guajeo</em> with same anticipations: Dm ↔ G7</li>
+          <li><strong style="color: var(--c-horns)">Horns</strong> — punchy <em>mambo</em> hits</li>
+          <li><strong style="color: var(--c-coro)">Coro</strong> — response in bar 2 (the "call" is implied)</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    /* =========================================================
+       SALSA ENGINE — Web Audio synthesis + look-ahead scheduler
+                    + stem playback + pattern editor
+       ========================================================= */
+
+    // 16 steps = 8th-notes across 2 bars of 4/4 (one 8-beat cycle).
+    //  0=1, 1=&-of-1, 2=2, 3=&-of-2, 4=3, 5=&-of-3, 6=4, 7=&-of-4,
+    //  8=5, 9=&-of-5, 10=6, 11=&-of-6, 12=7, 13=&-of-7, 14=8, 15=&-of-8
+
+    const CLAVE_PATTERNS = {
+      "2-3 Son":   [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+      "3-2 Son":   [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+      "2-3 Rumba": [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+    };
+
+    const TRACKS = [
+      {
+        id: "clave",
+        name: "Clave",
+        tagline: "2-3 Son · backbone",
+        color: "#ffe45e",
+        vol: 0.85,
+        pattern: [...CLAVE_PATTERNS["2-3 Son"]],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 10l14-2M5 14l14-2" stroke-linecap="round"/></svg>`,
+      },
+      {
+        id: "cascara",
+        name: "Cáscara",
+        tagline: "Timbales shell",
+        color: "#5dd9c1",
+        vol: 0.42,
+        pattern: [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>`,
+      },
+      {
+        id: "cowbell",
+        name: "Campana",
+        tagline: "Mambo bell",
+        color: "#fb8b24",
+        vol: 0.5,
+        pattern: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4h8l2 12H6L8 4z"/><path d="M10 20h4"/></svg>`,
+      },
+      {
+        id: "bongo",
+        name: "Bongo",
+        tagline: "Martillo texture",
+        color: "#ff6b9d",
+        vol: 0.4,
+        pattern: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="8" cy="7" rx="4" ry="1.5"/><ellipse cx="16" cy="7" rx="4" ry="1.5"/><path d="M4 7v10c0 1 2 2 4 2s4-1 4-2V7M12 7v10c0 1 2 2 4 2s4-1 4-2V7"/></svg>`,
+      },
+      {
+        id: "conga",
+        name: "Conga",
+        tagline: "Tumbao · open + slap",
+        color: "#e63946",
+        vol: 0.75,
+        pattern: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 5h10l-1 14a3 3 0 0 1-3 3h-2a3 3 0 0 1-3-3L7 5z"/><ellipse cx="12" cy="5" rx="5" ry="1.5"/></svg>`,
+      },
+      {
+        id: "bass",
+        name: "Bass",
+        tagline: "Anticipated tumbao",
+        color: "#c084fc",
+        vol: 0.85,
+        pattern: [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="16" r="4"/><circle cx="16" cy="16" r="4"/><path d="M12 16V4l6 2"/></svg>`,
+      },
+      {
+        id: "piano",
+        name: "Piano",
+        tagline: "Montuno · Dm ↔ G7",
+        color: "#f9a03f",
+        vol: 0.55,
+        pattern: [0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M9 6v8M15 6v8M3 14h18"/></svg>`,
+      },
+      {
+        id: "horns",
+        name: "Horns",
+        tagline: "Mambo hits",
+        color: "#d4ff4d",
+        vol: 0.45,
+        pattern: [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h8M12 12c2-2 4-3 7-3v6c-3 0-5-1-7-3z" stroke-linejoin="round"/><circle cx="6" cy="9" r="1.5"/></svg>`,
+      },
+      {
+        id: "coro",
+        name: "Coro",
+        tagline: "Call · response",
+        color: "#d4a5e8",
+        vol: 0.5,
+        pattern: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+        glyph: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 8a4 4 0 0 1 8 0v6a4 4 0 0 1-8 0z"/><path d="M5 14a7 7 0 0 0 14 0M12 21v-2"/></svg>`,
+      },
+    ];
+
+    // Bass notes per active step — anticipated D / G vamp.
+    const BASS_NOTES = {
+      3: 73.42,  // D2 — Dm root
+      6: 98.00,  // G2 — anticipates G7 bar
+      11: 98.00, // G2 — G7 root
+      14: 73.42, // D2 — anticipates back to Dm
+    };
+
+    // Piano chord per active step.
+    const PIANO_CHORD_AT = {
+      1: "Dm", 4: "Dm", 7: "G7", 9: "G7", 12: "G7", 15: "Dm",
+    };
+    const CHORD_NOTES = {
+      Dm: [293.66, 349.23, 587.33],
+      G7: [196.00, 293.66, 349.23],
+    };
+
+    // Horn voicings per step.
+    const HORN_AT = {
+      0: [392.00, 493.88, 587.33],  // G-B-D, on Dm bar
+      6: [392.00, 493.88, 587.33],
+      8: [349.23, 440.00, 523.25],  // F-A-C, on G7 bar
+      14: [349.23, 440.00, 523.25],
+    };
+
+    // Coro pitches (response phrase descending).
+    const CORO_AT = {
+      8: 392.00,   // G
+      10: 349.23,  // F
+      12: 329.63,  // E
+      14: 293.66,  // D
+    };
+
+    // Tracks that do NOT get swing (rhythmic backbone stays straight).
+    const NO_SWING = new Set(["clave"]);
+
+    /* --------------- ENGINE --------------- */
+    const Engine = {
+      ctx: null,
+      master: null,
+      comp: null,
+      noiseBuf: null,
+      isPlaying: false,
+      tempo: 96,
+      swingAmt: 0.08,
+      currentStep: 0,
+      nextNoteTime: 0,
+      lookahead: 25,
+      scheduleAheadTime: 0.14,
+      timerId: null,
+      queue: [],
+      tracks: {},        // id -> [16] pattern
+      stems: {},         // id -> { buffer, name, sourceNode, gainNode }
+      muted: new Set(),
+      soloed: new Set(),
+      masterGain: 0.7,
+      cycleStartTime: 0, // for stem looping
+
+      init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        this.master = this.ctx.createGain();
+        this.master.gain.value = this.masterGain;
+
+        this.lowShelf = this.ctx.createBiquadFilter();
+        this.lowShelf.type = "lowshelf";
+        this.lowShelf.frequency.value = 220;
+        this.lowShelf.gain.value = 1.5;
+
+        this.comp = this.ctx.createDynamicsCompressor();
+        this.comp.threshold.value = -16;
+        this.comp.knee.value = 24;
+        this.comp.ratio.value = 3.5;
+        this.comp.attack.value = 0.005;
+        this.comp.release.value = 0.2;
+
+        this.master.connect(this.lowShelf).connect(this.comp).connect(this.ctx.destination);
+
+        // White noise buffer (2 s) for percussive transients.
+        const len = this.ctx.sampleRate * 2;
+        this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+        const d = this.noiseBuf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      },
+
+      cycleDuration() {
+        // Two bars of 4/4 at current tempo, in seconds.
+        return (60.0 / this.tempo) * 8;
+      },
+
+      // -------- Voices --------
+      playClave(t, vol) {
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = "triangle";
+        o.frequency.setValueAtTime(2200, t);
+        o.frequency.exponentialRampToValueAtTime(1300, t + 0.05);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol * 0.9, t + 0.001);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+        o.connect(g).connect(this.master);
+        o.start(t); o.stop(t + 0.1);
+      },
+
+      playCascara(t, vol) {
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuf;
+        const hp = this.ctx.createBiquadFilter();
+        hp.type = "highpass"; hp.frequency.value = 4500; hp.Q.value = 1.4;
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = "bandpass"; bp.frequency.value = 6500; bp.Q.value = 2.5;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(vol * 0.35, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+        src.connect(hp).connect(bp).connect(g).connect(this.master);
+        src.start(t); src.stop(t + 0.05);
+      },
+
+      playCowbell(t, vol) {
+        const o1 = this.ctx.createOscillator();
+        const o2 = this.ctx.createOscillator();
+        o1.type = "square"; o2.type = "square";
+        o1.frequency.value = 800; o2.frequency.value = 540;
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = "bandpass"; bp.frequency.value = 800; bp.Q.value = 0.9;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol * 0.4, t + 0.003);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        o1.connect(bp); o2.connect(bp);
+        bp.connect(g).connect(this.master);
+        o1.start(t); o1.stop(t + 0.22);
+        o2.start(t); o2.stop(t + 0.22);
+      },
+
+      playBongo(t, vol, step) {
+        // Alternating macho (high) / hembra (low) — accents on beats 1,3,5,7
+        const isAccent = step % 4 === 0;
+        const isHigh = step % 2 === 0;
+        const baseF = isHigh ? (isAccent ? 480 : 420) : (isAccent ? 280 : 240);
+        const peak = isAccent ? vol * 0.7 : vol * 0.45;
+
+        const body = this.ctx.createOscillator();
+        const bodyG = this.ctx.createGain();
+        body.type = "sine";
+        body.frequency.setValueAtTime(baseF * 1.6, t);
+        body.frequency.exponentialRampToValueAtTime(baseF, t + 0.025);
+        bodyG.gain.setValueAtTime(0, t);
+        bodyG.gain.linearRampToValueAtTime(peak * 0.7, t + 0.002);
+        bodyG.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        body.connect(bodyG).connect(this.master);
+        body.start(t); body.stop(t + 0.12);
+
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuf;
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = "bandpass"; bp.frequency.value = isHigh ? 1900 : 900; bp.Q.value = 1.6;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(peak * 0.3, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        src.connect(bp).connect(g).connect(this.master);
+        src.start(t); src.stop(t + 0.05);
+      },
+
+      playConga(t, vol, step) {
+        // Open tones on beats 4 & 8 (steps 6, 14); slaps elsewhere.
+        const isOpen = step === 6 || step === 14;
+        const baseF = isOpen ? 190 : 320;
+        const decay = isOpen ? 0.35 : 0.12;
+
+        const body = this.ctx.createOscillator();
+        const bodyG = this.ctx.createGain();
+        body.type = "sine";
+        body.frequency.setValueAtTime(baseF * 1.8, t);
+        body.frequency.exponentialRampToValueAtTime(baseF, t + 0.04);
+        bodyG.gain.setValueAtTime(0, t);
+        bodyG.gain.linearRampToValueAtTime(vol * 0.8, t + 0.003);
+        bodyG.gain.exponentialRampToValueAtTime(0.001, t + decay);
+        body.connect(bodyG).connect(this.master);
+        body.start(t); body.stop(t + decay + 0.05);
+
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuf;
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.value = isOpen ? 480 : 1400;
+        bp.Q.value = 1.4;
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(vol * 0.35, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+        src.connect(bp).connect(g).connect(this.master);
+        src.start(t); src.stop(t + 0.06);
+      },
+
+      playBass(t, vol, step) {
+        const freq = BASS_NOTES[step] || 73.42;
+        const o = this.ctx.createOscillator();
+        const sub = this.ctx.createOscillator();
+        o.type = "triangle"; sub.type = "sine";
+        o.frequency.value = freq; sub.frequency.value = freq;
+
+        const lp = this.ctx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.setValueAtTime(900, t);
+        lp.frequency.exponentialRampToValueAtTime(450, t + 0.18);
+        lp.Q.value = 4;
+
+        const g = this.ctx.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol * 0.9, t + 0.006);
+        g.gain.setValueAtTime(vol * 0.75, t + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+
+        o.connect(lp); sub.connect(lp);
+        lp.connect(g).connect(this.master);
+        o.start(t); o.stop(t + 0.34);
+        sub.start(t); sub.stop(t + 0.34);
+      },
+
+      playPiano(t, vol, step) {
+        const chord = PIANO_CHORD_AT[step] || "Dm";
+        const notes = CHORD_NOTES[chord];
+        const totalG = this.ctx.createGain();
+        totalG.gain.setValueAtTime(0, t);
+        totalG.gain.linearRampToValueAtTime(vol * 0.28, t + 0.008);
+        totalG.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+
+        const lp = this.ctx.createBiquadFilter();
+        lp.type = "lowpass"; lp.frequency.value = 3200;
+        totalG.connect(lp).connect(this.master);
+
+        notes.forEach((f, i) => {
+          const o = this.ctx.createOscillator();
+          o.type = i === 0 ? "triangle" : "sine";
+          o.frequency.value = f;
+          o.detune.value = (Math.random() - 0.5) * 6;
+          const og = this.ctx.createGain();
+          og.gain.value = i === 0 ? 0.8 : 0.55;
+          o.connect(og).connect(totalG);
+          o.start(t); o.stop(t + 0.36);
+        });
+      },
+
+      playHorns(t, vol, step) {
+        const notes = HORN_AT[step] || HORN_AT[0];
+        const totalG = this.ctx.createGain();
+        totalG.gain.setValueAtTime(0, t);
+        totalG.gain.linearRampToValueAtTime(vol * 0.3, t + 0.012);
+        totalG.gain.setValueAtTime(vol * 0.25, t + 0.18);
+        totalG.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+        // Trumpet-ish stacked sawtooth through bandpass.
+        const bp = this.ctx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.value = 1400; bp.Q.value = 1.4;
+        totalG.connect(bp).connect(this.master);
+
+        notes.forEach((f, i) => {
+          const o = this.ctx.createOscillator();
+          o.type = "sawtooth";
+          o.frequency.value = f;
+          o.detune.value = (Math.random() - 0.5) * 8;
+          const og = this.ctx.createGain();
+          og.gain.value = i === 0 ? 0.45 : 0.3;
+          o.connect(og).connect(totalG);
+          o.start(t); o.stop(t + 0.38);
+        });
+      },
+
+      playCoro(t, vol, step) {
+        // Soft, vowel-like — sine + filtered noise for breath.
+        const freq = CORO_AT[step] || 392.00;
+        const totalG = this.ctx.createGain();
+        totalG.gain.setValueAtTime(0, t);
+        totalG.gain.linearRampToValueAtTime(vol * 0.32, t + 0.04);
+        totalG.gain.setValueAtTime(vol * 0.28, t + 0.18);
+        totalG.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+
+        // Formant filter (rough "ah" vowel).
+        const bp1 = this.ctx.createBiquadFilter();
+        bp1.type = "bandpass"; bp1.frequency.value = 730; bp1.Q.value = 4;
+        const bp2 = this.ctx.createBiquadFilter();
+        bp2.type = "bandpass"; bp2.frequency.value = 1090; bp2.Q.value = 4;
+
+        const sum = this.ctx.createGain();
+        sum.gain.value = 1;
+        bp1.connect(sum); bp2.connect(sum);
+        sum.connect(totalG).connect(this.master);
+
+        [freq, freq * 2, freq * 3].forEach((f, i) => {
+          const o = this.ctx.createOscillator();
+          o.type = "sawtooth";
+          o.frequency.value = f;
+          o.detune.value = (Math.random() - 0.5) * 6;
+          const og = this.ctx.createGain();
+          og.gain.value = i === 0 ? 0.4 : 0.15;
+          o.connect(og).connect(bp1);
+          o.connect(og).connect(bp2);
+          o.start(t); o.stop(t + 0.45);
+        });
+      },
+
+      trigger(id, step, time, vol) {
+        switch (id) {
+          case "clave": return this.playClave(time, vol);
+          case "cascara": return this.playCascara(time, vol);
+          case "cowbell": return this.playCowbell(time, vol);
+          case "bongo": return this.playBongo(time, vol, step);
+          case "conga": return this.playConga(time, vol, step);
+          case "bass": return this.playBass(time, vol, step);
+          case "piano": return this.playPiano(time, vol, step);
+          case "horns": return this.playHorns(time, vol, step);
+          case "coro": return this.playCoro(time, vol, step);
+        }
+      },
+
+      shouldPlay(id) {
+        if (this.soloed.size > 0) return this.soloed.has(id);
+        return !this.muted.has(id);
+      },
+
+      // -------- Stems --------
+      async loadStem(id, file) {
+        this.init();
+        const ab = await file.arrayBuffer();
+        const buf = await this.ctx.decodeAudioData(ab);
+        // Tear down any existing stem source first.
+        this.unloadStem(id);
+        this.stems[id] = { buffer: buf, name: file.name, sourceNode: null, gainNode: null };
+        if (this.isPlaying) this.startStem(id, this.cycleStartTime);
+      },
+
+      unloadStem(id) {
+        const s = this.stems[id];
+        if (!s) return;
+        try { s.sourceNode && s.sourceNode.stop(); } catch (e) {}
+        try { s.sourceNode && s.sourceNode.disconnect(); } catch (e) {}
+        try { s.gainNode && s.gainNode.disconnect(); } catch (e) {}
+        delete this.stems[id];
+      },
+
+      startStem(id, startAt) {
+        const s = this.stems[id];
+        if (!s || !s.buffer) return;
+        const t = TRACKS.find((x) => x.id === id);
+
+        // Build a routed source for this stem.
+        const src = this.ctx.createBufferSource();
+        src.buffer = s.buffer;
+        src.loop = true;
+        src.loopStart = 0;
+        src.loopEnd = Math.min(s.buffer.duration, this.cycleDuration());
+
+        const g = this.ctx.createGain();
+        g.gain.value = this.shouldPlay(id) ? t.vol : 0;
+
+        src.connect(g).connect(this.master);
+        src.start(startAt);
+
+        s.sourceNode = src;
+        s.gainNode = g;
+      },
+
+      stopAllStems() {
+        Object.keys(this.stems).forEach((id) => {
+          const s = this.stems[id];
+          try { s.sourceNode && s.sourceNode.stop(); } catch (e) {}
+          try { s.sourceNode && s.sourceNode.disconnect(); } catch (e) {}
+          try { s.gainNode && s.gainNode.disconnect(); } catch (e) {}
+          s.sourceNode = null;
+          s.gainNode = null;
+        });
+      },
+
+      startAllStems(startAt) {
+        Object.keys(this.stems).forEach((id) => this.startStem(id, startAt));
+      },
+
+      updateStemGains() {
+        Object.keys(this.stems).forEach((id) => {
+          const s = this.stems[id];
+          if (!s.gainNode) return;
+          const t = TRACKS.find((x) => x.id === id);
+          const target = this.shouldPlay(id) ? t.vol : 0;
+          s.gainNode.gain.setTargetAtTime(target, this.ctx.currentTime, 0.015);
+        });
+      },
+
+      // -------- Scheduling --------
+      start() {
+        this.init();
+        if (this.ctx.state === "suspended") this.ctx.resume();
+        this.isPlaying = true;
+        this.currentStep = 0;
+        const start = this.ctx.currentTime + 0.08;
+        this.cycleStartTime = start;
+        this.nextNoteTime = start;
+        this.queue.length = 0;
+        this.startAllStems(start);
+        this.timerId = setInterval(() => this.scheduler(), this.lookahead);
+      },
+
+      stop() {
+        this.isPlaying = false;
+        clearInterval(this.timerId);
+        this.timerId = null;
+        this.queue.length = 0;
+        this.stopAllStems();
+      },
+
+      // Restart cleanly when tempo/clave/pattern changes invalidate stem timing.
+      restartIfPlaying() {
+        if (!this.isPlaying) return;
+        this.stop();
+        this.start();
+      },
+
+      scheduler() {
+        while (this.nextNoteTime < this.ctx.currentTime + this.scheduleAheadTime) {
+          this.scheduleStep(this.currentStep, this.nextNoteTime);
+          this.advanceStep();
+        }
+      },
+
+      // Apply swing delay to the off-beat 8th notes (odd step indices),
+      // except for tracks in the NO_SWING set (clave stays straight).
+      stepTimeFor(id, step, baseTime) {
+        if (NO_SWING.has(id)) return baseTime;
+        if (step % 2 === 0) return baseTime;
+        const eighthDur = (60.0 / this.tempo) / 2;
+        return baseTime + eighthDur * this.swingAmt;
+      },
+
+      scheduleStep(step, time) {
+        this.queue.push({ step, time, firedTracks: [] });
+        const lastQ = this.queue[this.queue.length - 1];
+        TRACKS.forEach((t) => {
+          // Skip demo synth for tracks that have a loaded stem.
+          if (this.stems[t.id]) return;
+          if (!this.shouldPlay(t.id)) return;
+          if (!this.tracks[t.id][step]) return;
+          const swungTime = this.stepTimeFor(t.id, step, time);
+          this.trigger(t.id, step, swungTime, t.vol);
+          lastQ.firedTracks.push(t.id);
+        });
+      },
+
+      advanceStep() {
+        const secPerStep = (60.0 / this.tempo) / 2; // 8th-notes
+        this.nextNoteTime += secPerStep;
+        const wasLast = this.currentStep === 15;
+        this.currentStep = (this.currentStep + 1) % 16;
+        // Each time we complete a cycle, mark the new cycle start for stems.
+        if (wasLast) this.cycleStartTime = this.nextNoteTime;
+      },
+
+      setMaster(v) {
+        this.masterGain = v;
+        if (this.master) this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
+      },
+    };
+
+    // Seed engine patterns.
+    TRACKS.forEach((t) => (Engine.tracks[t.id] = [...t.pattern]));
+
+    /* =========================================================
+       UI
+       ========================================================= */
+    const $ = (sel) => document.querySelector(sel);
+
+    // Beat strip (1..8) with side annotations.
+    const beatStrip = $("#beatStrip");
+    const beatEls = [];
+    function renderBeatStrip(claveKey = "2-3 Son") {
+      beatStrip.innerHTML = "";
+      beatEls.length = 0;
+      const twoThree = claveKey.startsWith("2-3");
+      for (let i = 1; i <= 8; i++) {
+        const inFirstBar = i <= 4;
+        const side = twoThree
+          ? (inFirstBar ? "2-side" : "3-side")
+          : (inFirstBar ? "3-side" : "2-side");
+        const desc =
+          i === 1 || i === 5
+            ? "bar start"
+            : i === 4 || i === 8
+            ? "resolve · prepare"
+            : "syncopation";
+        const b = document.createElement("div");
+        b.className = `beat ${side === "2-side" ? "side-2" : "side-3"}`;
+        b.dataset.beat = i;
+        b.innerHTML = `
+          <span class="side">${side}</span>
+          <span class="num">${i}</span>
+          <span class="desc">${desc}</span>
+        `;
+        beatStrip.appendChild(b);
+        beatEls.push(b);
+      }
+    }
+    renderBeatStrip();
+
+    // Track rows.
+    const tracksEl = $("#tracks");
+    const trackCellEls = {};
+    const trackGlyphEls = {};
+    const trackRowEls = {};
+    const stemStatusEls = {};
+
+    TRACKS.forEach((t) => {
+      const row = document.createElement("div");
+      row.className = "track";
+      row.style.setProperty("--track-color", t.color);
+      row.dataset.id = t.id;
+      trackRowEls[t.id] = row;
+
+      // META
+      const meta = document.createElement("div");
+      meta.className = "track-meta";
+
+      const header = document.createElement("div");
+      header.className = "track-header";
+      const glyph = document.createElement("div");
+      glyph.className = "track-glyph";
+      glyph.innerHTML = t.glyph;
+      trackGlyphEls[t.id] = glyph;
+      const nameBlock = document.createElement("div");
+      nameBlock.className = "track-name";
+      nameBlock.innerHTML = `<div class="n">${t.name}<span class="badge">STEM</span></div><div class="t">${t.tagline}</div>`;
+      header.append(glyph, nameBlock);
+
+      const ctrls = document.createElement("div");
+      ctrls.className = "track-controls";
+      const mute = document.createElement("button");
+      mute.className = "ms-btn mute"; mute.textContent = "M"; mute.title = "Mute";
+      mute.addEventListener("click", () => {
+        if (Engine.muted.has(t.id)) Engine.muted.delete(t.id);
+        else Engine.muted.add(t.id);
+        mute.classList.toggle("on");
+        row.classList.toggle("muted", Engine.muted.has(t.id));
+        Engine.updateStemGains();
+      });
+      const solo = document.createElement("button");
+      solo.className = "ms-btn solo"; solo.textContent = "S"; solo.title = "Solo";
+      solo.addEventListener("click", () => {
+        if (Engine.soloed.has(t.id)) Engine.soloed.delete(t.id);
+        else Engine.soloed.add(t.id);
+        solo.classList.toggle("on");
+        Engine.updateStemGains();
+      });
+      const stemBtn = document.createElement("label");
+      stemBtn.className = "stem-btn";
+      stemBtn.title = "Upload stem (audio file)";
+      stemBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12M6 9l6-6 6 6M4 21h16" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const fileIn = document.createElement("input");
+      fileIn.type = "file"; fileIn.accept = "audio/*";
+      fileIn.addEventListener("change", async (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        try {
+          stemStatus.textContent = "decoding…";
+          await Engine.loadStem(t.id, f);
+          row.classList.add("has-stem");
+          renderStemStatus(t.id);
+        } catch (err) {
+          stemStatus.textContent = "decode failed";
+          console.error(err);
+        } finally {
+          fileIn.value = "";
+        }
+      });
+      stemBtn.appendChild(fileIn);
+      const vol = document.createElement("input");
+      vol.type = "range"; vol.min = 0; vol.max = 100; vol.value = Math.round(t.vol * 100);
+      vol.addEventListener("input", () => {
+        t.vol = vol.value / 100;
+        Engine.updateStemGains();
+      });
+      ctrls.append(mute, solo, stemBtn, vol);
+
+      const stemStatus = document.createElement("div");
+      stemStatus.className = "stem-status";
+      stemStatus.textContent = "synth";
+      stemStatusEls[t.id] = stemStatus;
+
+      meta.append(header, ctrls, stemStatus);
+
+      // PATTERN
+      const pattern = document.createElement("div");
+      pattern.className = "pattern";
+      const cells = [];
+      for (let i = 0; i < 16; i++) {
+        const c = document.createElement("div");
+        c.className = "cell";
+        if (i % 2 === 0) c.classList.add("beat-start");
+        if (i === 0 || i === 8) c.classList.add("measure-start");
+        if (Engine.tracks[t.id][i]) c.classList.add("on");
+        c.dataset.step = i;
+        c.addEventListener("click", () => {
+          if (Engine.stems[t.id]) return; // pattern is reference-only when stem loaded
+          Engine.tracks[t.id][i] = Engine.tracks[t.id][i] ? 0 : 1;
+          c.classList.toggle("on");
+        });
+        cells.push(c);
+        pattern.appendChild(c);
+      }
+      trackCellEls[t.id] = cells;
+
+      row.append(meta, pattern);
+      tracksEl.appendChild(row);
+    });
+
+    function renderStemStatus(id) {
+      const el = stemStatusEls[id];
+      const s = Engine.stems[id];
+      if (!s) {
+        el.textContent = "synth";
+        trackRowEls[id].classList.remove("has-stem");
+        return;
+      }
+      el.innerHTML = "";
+      const name = document.createElement("span");
+      name.textContent = `stem · ${s.name.length > 22 ? s.name.slice(0, 20) + "…" : s.name}`;
+      const clear = document.createElement("button");
+      clear.className = "clear"; clear.textContent = "✕";
+      clear.title = "Remove stem";
+      clear.addEventListener("click", () => {
+        Engine.unloadStem(id);
+        renderStemStatus(id);
+        if (Engine.isPlaying) Engine.restartIfPlaying();
+      });
+      el.append(name, clear);
+    }
+
+    // Transport
+    const playBtn = $("#playBtn");
+    let rafActive = false;
+    playBtn.addEventListener("click", () => {
+      if (!Engine.isPlaying) {
+        Engine.start();
+        playBtn.classList.add("playing");
+        playBtn.textContent = "■";
+        if (!rafActive) { rafActive = true; rafLoop(); }
+      } else {
+        Engine.stop();
+        playBtn.classList.remove("playing");
+        playBtn.textContent = "▶";
+        beatEls.forEach((b) => b.classList.remove("active", "break"));
+        Object.values(trackCellEls).forEach((cells) =>
+          cells.forEach((c) => c.classList.remove("playing", "fire"))
+        );
+      }
+    });
+
+    const bpmIn = $("#bpm");
+    const bpmDisplay = $("#bpmDisplay");
+    bpmIn.addEventListener("input", () => {
+      Engine.tempo = +bpmIn.value;
+      bpmDisplay.textContent = bpmIn.value;
+    });
+    // When BPM changes meaningfully, stems need re-looping at the new cycle length.
+    bpmIn.addEventListener("change", () => {
+      if (Object.keys(Engine.stems).length) Engine.restartIfPlaying();
+    });
+
+    const swingIn = $("#swing");
+    const swingDisplay = $("#swingDisplay");
+    swingIn.addEventListener("input", () => {
+      Engine.swingAmt = +swingIn.value / 100;
+      swingDisplay.textContent = swingIn.value;
+    });
+
+    const masterIn = $("#master");
+    const masterDisplay = $("#masterDisplay");
+    masterIn.addEventListener("input", () => {
+      Engine.setMaster(+masterIn.value / 100);
+      masterDisplay.textContent = masterIn.value;
+    });
+
+    // Toolbar — clave variants
+    const claveToggle = $("#claveToggle");
+    const claveKeys = Object.keys(CLAVE_PATTERNS);
+    let claveIdx = 0;
+    claveToggle.addEventListener("click", () => {
+      claveIdx = (claveIdx + 1) % claveKeys.length;
+      const k = claveKeys[claveIdx];
+      claveToggle.textContent = `Clave: ${k}`;
+      Engine.tracks.clave = [...CLAVE_PATTERNS[k]];
+      trackCellEls.clave.forEach((c, i) =>
+        c.classList.toggle("on", !!Engine.tracks.clave[i])
+      );
+      renderBeatStrip(k);
+    });
+
+    $("#resetPatterns").addEventListener("click", () => {
+      TRACKS.forEach((t) => {
+        Engine.tracks[t.id] = [...t.pattern];
+        trackCellEls[t.id].forEach((c, i) =>
+          c.classList.toggle("on", !!Engine.tracks[t.id][i])
+        );
+      });
+      claveIdx = 0;
+      claveToggle.textContent = "Clave: 2-3 Son";
+      renderBeatStrip("2-3 Son");
+    });
+
+    $("#clearAll").addEventListener("click", () => {
+      TRACKS.forEach((t) => {
+        Engine.tracks[t.id] = new Array(16).fill(0);
+        trackCellEls[t.id].forEach((c) => c.classList.remove("on"));
+      });
+    });
+
+    $("#clearStems").addEventListener("click", () => {
+      TRACKS.forEach((t) => {
+        if (Engine.stems[t.id]) {
+          Engine.unloadStem(t.id);
+          renderStemStatus(t.id);
+        }
+      });
+      if (Engine.isPlaying) Engine.restartIfPlaying();
+    });
+
+    // RAF visual sync — drains the scheduled queue against audio time.
+    let lastDrawnStep = -1;
+    function rafLoop() {
+      if (!Engine.isPlaying) { rafActive = false; return; }
+      const now = Engine.ctx.currentTime;
+      let drawStep = -1;
+      let firedTracks = null;
+      while (Engine.queue.length && Engine.queue[0].time <= now) {
+        const item = Engine.queue.shift();
+        drawStep = item.step;
+        firedTracks = item.firedTracks;
+      }
+
+      if (drawStep !== -1 && drawStep !== lastDrawnStep) {
+        const beatNum = Math.floor(drawStep / 2) + 1;
+        const isDownbeat = drawStep % 2 === 0;
+        beatEls.forEach((b, idx) => {
+          const isCurrent = isDownbeat && idx === beatNum - 1;
+          b.classList.toggle("active", isCurrent);
+          b.classList.toggle(
+            "break",
+            isCurrent && (beatNum === 4 || beatNum === 8)
+          );
+        });
+
+        TRACKS.forEach((t) => {
+          trackCellEls[t.id].forEach((c, i) => {
+            c.classList.toggle("playing", i === drawStep);
+          });
+        });
+
+        if (firedTracks) {
+          firedTracks.forEach((id) => {
+            const g = trackGlyphEls[id];
+            g.classList.add("pulse");
+            setTimeout(() => g.classList.remove("pulse"), 110);
+            const cell = trackCellEls[id][drawStep];
+            if (cell && cell.classList.contains("on")) {
+              cell.classList.remove("fire");
+              void cell.offsetWidth;
+              cell.classList.add("fire");
+            }
+          });
+        }
+        lastDrawnStep = drawStep;
+      }
+      requestAnimationFrame(rafLoop);
+    }
+
+    // Keyboard shortcut.
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        playBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>

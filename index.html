@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salsa groove lab — implementations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f0a07;
+      --panel: rgba(255, 220, 170, 0.08);
+      --panel-strong: rgba(255, 220, 170, 0.13);
+      --border: rgba(255, 220, 170, 0.22);
+      --text: #fff3df;
+      --muted: #bba48a;
+      --amber: #ffc857;
+      --red: #e63946;
+      font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(255, 200, 87, 0.16), transparent 34rem),
+        radial-gradient(circle at 90% 15%, rgba(230, 57, 70, 0.12), transparent 32rem),
+        linear-gradient(135deg, #070504 0%, var(--bg) 52%, #20140d 100%);
+      color: var(--text);
+    }
+
+    main {
+      width: min(920px, 100%);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-family: Impact, "Arial Narrow", system-ui, sans-serif;
+      font-size: clamp(42px, 8vw, 88px);
+      line-height: 0.9;
+      letter-spacing: -0.045em;
+      text-transform: uppercase;
+    }
+
+    h1 span {
+      color: var(--amber);
+      font-style: italic;
+      text-transform: none;
+    }
+
+    .intro {
+      max-width: 720px;
+      margin: 18px 0 28px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: grid;
+      gap: 12px;
+      min-height: 230px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(180deg, var(--panel-strong), var(--panel));
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--amber);
+      background: linear-gradient(180deg, rgba(255, 200, 87, 0.16), var(--panel));
+      outline: none;
+    }
+
+    .badge {
+      width: fit-content;
+      padding: 6px 9px;
+      border-radius: 999px;
+      color: #190d03;
+      background: var(--amber);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge.alt {
+      color: var(--text);
+      background: var(--red);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .open {
+      align-self: end;
+      color: var(--amber);
+      font-weight: 900;
+    }
+
+    code {
+      color: var(--amber);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        place-items: start center;
+      }
+
+      .links {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Salsa Groove Lab</p>
+    <h1>Choose an <span>implementation</span></h1>
+    <p class="intro">
+      Open either version of the salsa dashboard. The current implementation focuses on stem-based isolation plus an 8-beat groove map. The other LLM implementation is a synth-only salsa sequencer prototype.
+    </p>
+
+    <section class="links" aria-label="Implementation links">
+      <a class="card" href="./openai.html">
+        <span class="badge">OpenAI</span>
+        <h2>ChatGPT 5.5</h2>
+        <p>
+          Stem mixer, browser-synth demo mode, clave direction, swing, solo/mute, per-track volume, reset tools, and full 8-beat rhythm mapping.
+        </p>
+        <span class="open">Open current version →</span>
+      </a>
+
+      <a class="card" href="./antropic.html">
+        <span class="badge alt">Anthropic</span>
+        <h2>Opus 4.7</h2>
+        <p>
+          Synthesized salsa sequencer with vintage hardware styling, editable 16-step patterns, generated instruments, and no stem upload workflow.
+        </p>
+        <span class="open">Open other version →</span>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
