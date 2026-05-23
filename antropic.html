@@ -17,6 +17,7 @@
        ========================================================= */
 
     :root {
+      color-scheme: dark;
       /* Base palette — warm dark, amber LED glow */
       --bg-deep: #0f0a07;
       --bg-1: #170f0a;
@@ -62,7 +63,7 @@
       background: var(--bg-deep);
       color: var(--text);
       font-family: "JetBrains Mono", ui-monospace, monospace;
-      font-size: 14px;
+      font-size: 0.875rem;
       -webkit-font-smoothing: antialiased;
       min-height: 100%;
     }
@@ -114,7 +115,7 @@
     }
 
     .brand .eyebrow {
-      font-size: 11px;
+      font-size: 0.688rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -123,7 +124,7 @@
     .brand h1 {
       font-family: "Big Shoulders Display", "Impact", sans-serif;
       font-weight: 900;
-      font-size: clamp(48px, 8vw, 96px);
+      font-size: clamp(3rem, 8vw, 6rem);
       line-height: 0.88;
       letter-spacing: -0.02em;
       margin: 4px 0 0 0;
@@ -143,17 +144,17 @@
     .brand .sub {
       font-family: "Instrument Serif", serif;
       font-style: italic;
-      font-size: 18px;
+      font-size: 1.125rem;
       color: var(--text-dim);
       margin-top: 6px;
     }
 
     .brand .sub::before {
-      content: "¡ ";
+      content: "¡ " / "";
       color: var(--red);
     }
     .brand .sub::after {
-      content: " !";
+      content: " !" / "";
       color: var(--red);
     }
 
@@ -176,7 +177,7 @@
     }
 
     .transport .knob label {
-      font-size: 9px;
+      font-size: 0.563rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -185,7 +186,7 @@
     .transport .knob .val {
       font-family: "Big Shoulders Display", sans-serif;
       font-weight: 700;
-      font-size: 26px;
+      font-size: 1.625rem;
       color: var(--amber);
       line-height: 1;
       text-shadow: 0 0 16px rgba(255, 200, 87, 0.5);
@@ -203,7 +204,7 @@
       place-items: center;
       font-family: "JetBrains Mono", monospace;
       font-weight: 700;
-      font-size: 24px;
+      font-size: 1.5rem;
       box-shadow:
         0 0 0 1px rgba(255, 255, 255, 0.05),
         0 8px 24px rgba(230, 57, 70, 0.3),
@@ -235,7 +236,7 @@
       margin-bottom: 14px;
     }
     .beat-strip-label .l {
-      font-size: 10px;
+      font-size: 0.625rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -243,7 +244,7 @@
     .beat-strip-label .r {
       font-family: "Instrument Serif", serif;
       font-style: italic;
-      font-size: 14px;
+      font-size: 0.875rem;
       color: var(--text-dim);
     }
 
@@ -270,14 +271,14 @@
     .beat .num {
       font-family: "Big Shoulders Display", sans-serif;
       font-weight: 900;
-      font-size: 38px;
+      font-size: 2.375rem;
       color: var(--text-muted);
       line-height: 1;
     }
     .beat .desc {
       font-family: "Instrument Serif", serif;
       font-style: italic;
-      font-size: 10.5px;
+      font-size: 0.656rem;
       color: var(--text-muted);
       text-align: center;
       line-height: 1.1;
@@ -286,7 +287,7 @@
       position: absolute;
       top: 6px;
       right: 7px;
-      font-size: 8px;
+      font-size: 0.5rem;
       letter-spacing: 0.16em;
       color: var(--text-muted);
       background: var(--bg-3);
@@ -335,7 +336,7 @@
       color: var(--text-dim);
       padding: 8px 14px;
       font-family: "JetBrains Mono", monospace;
-      font-size: 11px;
+      font-size: 0.688rem;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -354,7 +355,7 @@
     }
     .toolbar .hint {
       color: var(--text-muted);
-      font-size: 11px;
+      font-size: 0.688rem;
       letter-spacing: 0.08em;
       font-family: "Instrument Serif", serif;
       font-style: italic;
@@ -425,7 +426,7 @@
     .track-name .n {
       font-family: "Big Shoulders Display", sans-serif;
       font-weight: 700;
-      font-size: 19px;
+      font-size: 1.188rem;
       line-height: 1;
       letter-spacing: 0.02em;
       text-transform: uppercase;
@@ -437,13 +438,13 @@
     .track-name .t {
       font-family: "Instrument Serif", serif;
       font-style: italic;
-      font-size: 12.5px;
+      font-size: 0.781rem;
       color: var(--text-dim);
       margin-top: 2px;
     }
     .track-name .badge {
       font-family: "JetBrains Mono", monospace;
-      font-size: 8px;
+      font-size: 0.5rem;
       font-weight: 700;
       letter-spacing: 0.18em;
       background: var(--track-color, var(--amber));
@@ -469,7 +470,7 @@
       color: var(--text-muted);
       font-family: "JetBrains Mono", monospace;
       font-weight: 700;
-      font-size: 11px;
+      font-size: 0.688rem;
       cursor: pointer;
       border-radius: 3px;
       transition: all 0.1s ease;
@@ -556,7 +557,7 @@
     .stem-status {
       font-family: "Instrument Serif", serif;
       font-style: italic;
-      font-size: 11px;
+      font-size: 0.688rem;
       color: var(--text-muted);
       line-height: 1.2;
       display: flex;
@@ -570,7 +571,7 @@
       border: none;
       padding: 0;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 0.75rem;
       line-height: 1;
     }
     .stem-status .clear:hover { color: var(--red); }
@@ -649,10 +650,10 @@
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
     }
-    .legend h3 {
+    .legend h2 {
       font-family: "Big Shoulders Display", sans-serif;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 0.938rem;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       margin: 0 0 10px 0;
@@ -660,7 +661,7 @@
     }
     .legend p,
     .legend li {
-      font-size: 12.5px;
+      font-size: 0.781rem;
       line-height: 1.6;
       color: var(--text-dim);
     }
@@ -673,7 +674,72 @@
       background: var(--bg-3);
       padding: 1px 6px;
       border-radius: 3px;
-      font-size: 11px;
+      font-size: 0.688rem;
+    }
+
+    /* ───── FOCUS ───── */
+    :where(a, button, input, select):focus-visible {
+      outline: 3px solid var(--amber);
+      outline-offset: 3px;
+    }
+
+    /* ───── SKIP LINK ───── */
+    .skip-link {
+      position: absolute;
+      clip-path: inset(50%);
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .skip-link:focus {
+      position: fixed;
+      top: 16px;
+      inset-inline-start: 16px;
+      clip-path: none;
+      overflow: visible;
+      width: auto;
+      height: auto;
+      margin: 0;
+      padding: 12px 20px;
+      background: var(--amber);
+      color: var(--bg-deep);
+      font-weight: 700;
+      font-size: 0.875rem;
+      border-radius: 4px;
+      z-index: 9999;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      clip-path: inset(50%);
+      overflow: hidden;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      white-space: nowrap;
+    }
+
+    /* ───── REDUCED MOTION ───── */
+    @media (prefers-reduced-motion: reduce) {
+      .track,
+      .play-btn,
+      .toolbar button,
+      .ms-btn,
+      .cell,
+      .beat {
+        transition: none;
+      }
+      .cell.on.fire {
+        animation: none;
+      }
     }
 
     @media (max-width: 1000px) {
@@ -685,6 +751,7 @@
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
   <div class="app">
     <!-- ════════════ HEADER ════════════ -->
     <header>
@@ -694,7 +761,7 @@
         <div class="sub">vamos a tocar — clave, conga, campana, coro</div>
       </div>
 
-      <div class="transport">
+      <div class="transport" role="group" aria-label="Transport controls">
         <div class="knob">
           <label>Tempo</label>
           <div class="val" id="bpmDisplay">96</div>
@@ -715,33 +782,36 @@
     </header>
 
     <!-- ════════════ BEAT STRIP ════════════ -->
-    <section class="beat-strip">
+    <section class="beat-strip" aria-label="8-beat structure">
       <div class="beat-strip-label">
         <span class="l">The 8-Beat Structure</span>
         <span class="r"
           >Step on 1, 2, 3 — pause on 4 — step on 5, 6, 7 — pause on 8</span
         >
       </div>
-      <div class="beats" id="beatStrip"></div>
+      <div class="beats" id="beatStrip" aria-label="Beat timeline"></div>
     </section>
 
     <!-- ════════════ TOOLBAR ════════════ -->
-    <div class="toolbar">
-      <button id="claveToggle">Clave: 2-3 Son</button>
-      <button id="resetPatterns">Reset Patterns</button>
-      <button id="clearAll">Clear All</button>
-      <button id="clearStems">Clear All Stems</button>
-      <span class="sep"></span>
+    <div class="toolbar" role="toolbar" aria-label="Pattern tools">
+      <button id="claveToggle" type="button">Clave: 2-3 Son</button>
+      <button id="resetPatterns" type="button">Reset Patterns</button>
+      <button id="clearAll" type="button">Clear All</button>
+      <button id="clearStems" type="button">Clear All Stems</button>
+      <span class="sep" aria-hidden="true"></span>
       <span class="hint">Click any cell to edit · Upload stems to isolate real tracks</span>
     </div>
 
     <!-- ════════════ TRACKS ════════════ -->
-    <section class="tracks" id="tracks"></section>
+    <main id="main-content" tabindex="-1">
+      <h2 class="visually-hidden">Instrument tracks</h2>
+      <section class="tracks" id="tracks" aria-label="Instrument stem mixer"></section>
+    </main>
 
     <!-- ════════════ LEGEND ════════════ -->
-    <aside class="legend">
+    <aside class="legend" aria-label="How it works">
       <div>
-        <h3>How it works</h3>
+        <h2>How it works</h2>
         <p>
           Each instrument is synthesised live with the
           <code>Web Audio API</code> — no audio files required, so every track
@@ -752,7 +822,7 @@
         </p>
       </div>
       <div>
-        <h3>The patterns</h3>
+        <h2>The patterns</h2>
         <ul>
           <li><strong style="color: var(--c-clave)">Clave</strong> — backbone: 2, 3, 5, &amp;-of-6, 8 (2-3 Son); switchable to 3-2 Son or 2-3 Rumba</li>
           <li><strong style="color: var(--c-cascara)">Cáscara</strong> — busy 8th-note pattern on the timbale shell</li>
