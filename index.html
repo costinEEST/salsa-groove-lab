@@ -3,180 +3,399 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Salsa groove lab — implementations</title>
+  <title>Salsa Groove Lab — choose an implementation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
+    rel="stylesheet"
+  />
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #0f0a07;
-      --panel: rgba(255, 220, 170, 0.08);
-      --panel-strong: rgba(255, 220, 170, 0.13);
-      --border: rgba(255, 220, 170, 0.22);
-      --text: #fff3df;
-      --muted: #bba48a;
+      --bg-deep: #0f0a07;
+      --bg-1: #170f0a;
+      --bg-2: #20140d;
+      --bg-3: #2c1a10;
+      --line: rgba(255, 220, 170, 0.08);
+      --line-strong: rgba(255, 220, 170, 0.18);
+
+      --text: #f3e3cd;
+      --text-dim: #a18a73;
+      --text-muted: #6e5b48;
+
       --amber: #ffc857;
+      --amber-bright: #ffd97a;
       --red: #e63946;
-      font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+      --teal: #5dd9c1;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at 15% 0%, rgba(255, 200, 87, 0.16), transparent 34rem),
-        radial-gradient(circle at 90% 15%, rgba(230, 57, 70, 0.12), transparent 32rem),
-        linear-gradient(135deg, #070504 0%, var(--bg) 52%, #20140d 100%);
+      padding: 0;
+      background: var(--bg-deep);
       color: var(--text);
+      font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
     }
 
-    main {
-      width: min(920px, 100%);
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 50% at 30% 0%, rgba(255, 173, 92, 0.10), transparent 70%),
+        radial-gradient(ellipse 60% 60% at 80% 100%, rgba(230, 57, 70, 0.06), transparent 70%);
+      z-index: 0;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>");
+      z-index: 0;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 56px 28px 80px;
+    }
+
+    /* ───── HEADER ───── */
+    header {
+      margin-bottom: 44px;
+      max-width: 760px;
     }
 
     .eyebrow {
-      margin: 0 0 12px;
-      color: var(--amber);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.14em;
+      font-size: 11px;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
     h1 {
+      font-family: "Big Shoulders Display", "Impact", "Arial Narrow", sans-serif;
+      font-weight: 900;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 0.88;
+      letter-spacing: -0.02em;
       margin: 0;
-      max-width: 760px;
-      font-family: Impact, "Arial Narrow", system-ui, sans-serif;
-      font-size: clamp(42px, 8vw, 88px);
-      line-height: 0.9;
-      letter-spacing: -0.045em;
+      color: var(--text);
       text-transform: uppercase;
     }
 
-    h1 span {
+    h1 .accent {
       color: var(--amber);
       font-style: italic;
-      text-transform: none;
+      font-family: "Instrument Serif", serif;
+      font-weight: 400;
+      text-transform: lowercase;
     }
 
-    .intro {
-      max-width: 720px;
-      margin: 18px 0 28px;
-      color: var(--muted);
-      line-height: 1.65;
+    .lede {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 19px;
+      color: var(--text-dim);
+      margin: 20px 0 0;
+      max-width: 620px;
+      line-height: 1.45;
     }
 
-    .links {
+    .lede::before { content: "¡ "; color: var(--red); }
+    .lede::after { content: " !"; color: var(--red); }
+
+    /* ───── CARDS ───── */
+    .cards {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 18px;
     }
 
     .card {
-      display: grid;
-      gap: 12px;
-      min-height: 230px;
-      padding: 22px;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      background: linear-gradient(180deg, var(--panel-strong), var(--panel));
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
-      text-decoration: none;
-      color: var(--text);
-      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      background: var(--bg-1);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--card-color, var(--amber));
+      border-radius: 8px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: background 0.2s ease, transform 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .card:hover,
-    .card:focus-visible {
-      transform: translateY(-3px);
-      border-color: var(--amber);
-      background: linear-gradient(180deg, rgba(255, 200, 87, 0.16), var(--panel));
-      outline: none;
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 140px;
+      height: 140px;
+      background: radial-gradient(circle at top right, var(--card-color, var(--amber)), transparent 70%);
+      opacity: 0.08;
+      pointer-events: none;
     }
 
-    .badge {
-      width: fit-content;
-      padding: 6px 9px;
-      border-radius: 999px;
-      color: #190d03;
-      background: var(--amber);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
+    .card:hover {
+      background: var(--bg-2);
+      transform: translateY(-2px);
+    }
+
+    .card .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
     }
 
-    .badge.alt {
-      color: var(--text);
-      background: var(--red);
+    .card .badge {
+      color: var(--bg-deep);
+      background: var(--card-color, var(--amber));
+      padding: 4px 8px;
+      border-radius: 3px;
     }
 
-    h2 {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.15;
+    .card .model {
+      color: var(--text-dim);
     }
 
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-size: 14px;
-    }
-
-    .open {
-      align-self: end;
-      color: var(--amber);
+    .card h2 {
+      font-family: "Big Shoulders Display", "Impact", sans-serif;
       font-weight: 900;
+      font-size: 40px;
+      line-height: 0.9;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: var(--text);
+      margin: 0;
     }
 
-    code {
+    .card .tagline {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 16px;
+      color: var(--text-dim);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .card ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 7px;
+    }
+
+    .card li {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--text-dim);
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .card li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--card-color, var(--amber));
+    }
+
+    .card .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card .stat .v {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--card-color, var(--amber));
+      line-height: 1;
+    }
+
+    .card .stat .k {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .card a.open {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--card-color, var(--amber));
+      color: var(--bg-deep);
+      padding: 13px 18px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+      margin-top: auto;
+    }
+
+    .card a.open:hover {
+      box-shadow: 0 0 24px var(--card-color, var(--amber));
+      transform: translateY(-1px);
+    }
+
+    .card a.open .arrow {
+      transition: transform 0.15s ease;
+    }
+
+    .card a.open:hover .arrow {
+      transform: translateX(3px);
+    }
+
+    /* ───── FOOTER ───── */
+    footer {
+      margin-top: 48px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    footer code {
       color: var(--amber);
+      background: var(--bg-2);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
     }
 
-    @media (max-width: 720px) {
-      body {
-        place-items: start center;
-      }
+    footer .right {
+      font-family: "Instrument Serif", serif;
+      font-style: italic;
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 0;
+    }
 
-      .links {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 760px) {
+      .app { padding: 32px 18px 56px; }
+      header { margin-bottom: 32px; }
+      .cards { grid-template-columns: 1fr; }
+      .card { padding: 22px; }
+      .card h2 { font-size: 34px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <p class="eyebrow">Salsa Groove Lab</p>
-    <h1>Choose an <span>implementation</span></h1>
-    <p class="intro">
-      Open either version of the salsa dashboard. The current implementation focuses on stem-based isolation plus an 8-beat groove map. The other LLM implementation is a synth-only salsa sequencer prototype.
-    </p>
+  <div class="app">
+    <header>
+      <div class="eyebrow">Salsa Groove Lab · two merges, one brief</div>
+      <h1>Choose a<br /><span class="accent">build</span></h1>
+      <p class="lede">Both implementations started from two passes — Opus's initial and ChatGPT's initial — and merged them in their own voice. Different aesthetic, different musical priorities. Open either to hear the bets each model made.</p>
+    </header>
 
-    <section class="links" aria-label="Implementation links">
-      <a class="card" href="./openai.html">
-        <span class="badge">OpenAI</span>
-        <h2>ChatGPT 5.5</h2>
-        <p>
-          Stem mixer, browser-synth demo mode, clave direction, swing, solo/mute, per-track volume, reset tools, and full 8-beat rhythm mapping.
-        </p>
-        <span class="open">Open current version →</span>
-      </a>
+    <main class="cards">
+      <!-- CARD 1: Anthropic Claude Opus 4.7 -->
+      <article class="card" style="--card-color: #ffc857;">
+        <div class="badge-row">
+          <span class="badge">Anthropic</span>
+          <span class="model">Claude Opus 4.7</span>
+        </div>
+        <h2>Opus Build</h2>
+        <p class="tagline">Vintage hardware sequencer × Afro-Cuban warmth. Genre-aware synthesis detail.</p>
 
-      <a class="card" href="./antropic.html">
-        <span class="badge alt">Anthropic</span>
-        <h2>Opus 4.7</h2>
-        <p>
-          Synthesized salsa sequencer with vintage hardware styling, editable 16-step patterns, generated instruments, and no stem upload workflow.
-        </p>
-        <span class="open">Open other version →</span>
-      </a>
-    </section>
-  </main>
+        <div class="stats">
+          <div class="stat"><span class="v">9</span><span class="k">instruments</span></div>
+          <div class="stat"><span class="v">3</span><span class="k">clave variants</span></div>
+          <div class="stat"><span class="v">0</span><span class="k">dependencies</span></div>
+        </div>
+
+        <ul>
+          <li>Anticipated bass tumbao on Dm ↔ G7 — root of the <em>next</em> chord lands on the &-of-2 and beat 4</li>
+          <li>Piano <em>guajeo</em> with matching anticipations; bongo macho/hembra alternation; two-formant "ah"-vowel coro</li>
+          <li>2-3 Son, 3-2 Son, and 2-3 Rumba clave patterns, live-switchable</li>
+          <li>Swing knob, excluded from the clave (the genre's straightedge)</li>
+          <li>Stem upload per track — demo synth auto-mutes when a stem loads</li>
+          <li>Big Shoulders Display + Instrument Serif + JetBrains Mono</li>
+        </ul>
+
+        <a class="open" href="./antropic.html">
+          <span>Open Opus build</span>
+          <span class="arrow">→</span>
+        </a>
+      </article>
+
+      <!-- CARD 2: OpenAI ChatGPT 5.5 -->
+      <article class="card" style="--card-color: #ff6b9d;">
+        <div class="badge-row">
+          <span class="badge">OpenAI</span>
+          <span class="model">ChatGPT 5.5</span>
+        </div>
+        <h2>ChatGPT Build</h2>
+        <p class="tagline">Glassmorphic dashboard. Stereo positioning + richer explanatory scaffold.</p>
+
+        <div class="stats">
+          <div class="stat"><span class="v">9</span><span class="k">instruments</span></div>
+          <div class="stat"><span class="v">2</span><span class="k">clave variants</span></div>
+          <div class="stat"><span class="v">0</span><span class="k">dependencies</span></div>
+        </div>
+
+        <ul>
+          <li>Adopts Opus's anticipated bass and Dm ↔ G7 piano logic verbatim</li>
+          <li>Per-track stereo panning — places each instrument across the stereo field</li>
+          <li>Glassmorphic dashboard layout with intro card, sticky legend sidebar, and a "Mute all" affordance</li>
+          <li>Beat strip with 2-side / 3-side pills and bar-start / syncopation / pause-resolve descriptors</li>
+          <li>2-3 / 3-2 son clave only (no Rumba variant)</li>
+          <li>Swing applied uniformly to all tracks, including the clave</li>
+          <li>Stem upload per track — loops at the file's native duration</li>
+        </ul>
+
+        <a class="open" href="./openai.html">
+          <span>Open ChatGPT build</span>
+          <span class="arrow">→</span>
+        </a>
+      </article>
+    </main>
+
+    <footer>
+      <span>Web Audio API · vanilla HTML/CSS/JS · <code>npm install</code> not required</span>
+      <span class="right">vamos a tocar</span>
+    </footer>
+  </div>
 </body>
 </html>
